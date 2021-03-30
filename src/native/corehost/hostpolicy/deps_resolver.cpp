@@ -384,6 +384,9 @@ bool deps_resolver_t::probe_deps_entry(const deps_entry_t& entry, const pal::str
 
 bool report_missing_assembly_in_manifest(const deps_entry_t& entry, bool continueResolving = false)
 {
+#if defined(FEATURE_JETHOST)
+    continueResolving = true;
+#endif // FEATURE_JETHOST
     bool showManifestListMessage = !entry.runtime_store_manifest_list.empty();
 
     if (entry.asset_type == deps_entry_t::asset_types::resources)

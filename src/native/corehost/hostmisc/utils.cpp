@@ -4,6 +4,9 @@
 #include "utils.h"
 #include "trace.h"
 #include "bundle/info.h"
+#if defined(FEATURE_JETHOST)
+#include "jethost_properties.h"
+#endif
 
 bool library_exists_in_dir(const pal::string_t& lib_dir, const pal::string_t& lib_name, pal::string_t* p_lib_path)
 {
@@ -267,6 +270,9 @@ bool multilevel_lookup_enabled()
 {
     pal::string_t env_lookup;
     bool multilevel_lookup = true;
+#if defined(FEATURE_JETHOST)
+    multilevel_lookup = false;
+#endif // FEATURE_JETHOST
 
     if (pal::getenv(_X("DOTNET_MULTILEVEL_LOOKUP"), &env_lookup))
     {
@@ -363,6 +369,7 @@ pal::string_t get_dotnet_root_env_var_name()
 */
 pal::string_t get_deps_from_app_binary(const pal::string_t& app_base, const pal::string_t& app)
 {
+    trace::println(_X("get_deps_from_app_binary"));
     pal::string_t deps_file;
     auto app_name = get_filename(app);
 
@@ -375,6 +382,10 @@ pal::string_t get_deps_from_app_binary(const pal::string_t& app_base, const pal:
     }
     deps_file.append(app_name, 0, app_name.find_last_of(_X(".")));
     deps_file.append(_X(".deps.json"));
+#if defined(FEATURE_JETHOST)
+    if (!pal::file_exists(deps_file))
+        jethost_properties::try_get_path(JETHOST_DEPSFILE, &deps_file);
+#endif
     return deps_file;
 }
 

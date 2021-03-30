@@ -9,6 +9,9 @@
 #include "bundle/runner.h"
 #include "bundle/file_entry.h"
 
+#if FEATURE_JETHOST
+#include "jethost_properties.h"
+#endif
 namespace
 {
     void log_duplicate_property_error(const pal::char_t *property_key)
@@ -230,6 +233,10 @@ int hostpolicy_context_t::initialize(hostpolicy_init_t &hostpolicy_init, const a
 
     bool set_app_paths = false;
 
+#if defined(FEATURE_JETHOST)
+    set_app_paths = true;
+#endif // FEATURE_JETHOST
+
     // Runtime options config properties.
     for (size_t i = 0; i < hostpolicy_init.cfg_keys.size(); ++i)
     {
@@ -252,12 +259,22 @@ int hostpolicy_context_t::initialize(hostpolicy_init_t &hostpolicy_init, const a
     // and that could indicate the app paths shouldn't be set.
     if (set_app_paths)
     {
+#if defined(FEATURE_JETHOST)
+        pal::string_t app_paths_extra;
+        if (jethost_properties::try_get_path(JETHOST_APP_PATHS, &app_paths_extra))
+            app_base.append(1, PATH_SEPARATOR).append(app_paths_extra);
+#endif // FEATURE_JETHOST
         if (!coreclr_properties.add(common_property::AppPaths, app_base.c_str()))
         {
             log_duplicate_property_error(coreclr_property_bag_t::common_property_to_string(common_property::AppPaths));
             return StatusCode::LibHostDuplicateProperty;
         }
 
+#if defined(FEATURE_JETHOST)
+        pal::string_t app_ni_paths_extra;
+        if (jethost_properties::try_get_path(JETHOST_APP_NI_PATHS, &app_ni_paths_extra))
+            app_base.append(1, PATH_SEPARATOR).append(app_ni_paths_extra);
+#endif // FEATURE_JETHOST
         if (!coreclr_properties.add(common_property::AppNIPaths, app_base.c_str()))
         {
             log_duplicate_property_error(coreclr_property_bag_t::common_property_to_string(common_property::AppNIPaths));

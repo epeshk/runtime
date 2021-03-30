@@ -18,6 +18,9 @@
 #include <hostpolicy.h>
 #include "hostpolicy_context.h"
 #include "bundle/runner.h"
+#if defined(FEATURE_JETHOST)
+#include "jethost_properties.h"
+#endif
 
 namespace
 {
@@ -245,7 +248,28 @@ int run_app_for_context(
     trace::flush();
 
     // Execute the application
+    trace::println(_X("Execute the application"));
     unsigned int exit_code;
+//#if defined(FEATURE_JETHOST)
+//    pal::string_t entrypoint_type_name;
+//    pal::string_t entrypoint_method_name;
+//    if (jethost_properties::try_get(JETHOST_ENTRYPOINT_TYPE_NAME, &entrypoint_type_name) &&
+//        jethost_properties::try_get(JETHOST_ENTRYPOINT_METHOD_NAME, &entrypoint_method_name)) {
+//        void *delegate;
+//        trace::println(_X("%s"), entrypoint_type_name.c_str());
+//        trace::println(_X("%s"), entrypoint_method_name.c_str());
+//        auto hr = context.coreclr->create_delegate("AppForCustomHost", entrypoint_type_name.c_str(), entrypoint_method_name.c_str(), &delegate);
+//        if (!SUCCEEDED(hr))
+//        {
+//            trace::error(_X("Failed to create delegate, HRESULT: 0x%X"), hr);
+//            return StatusCode::CoreClrExeFailure;
+//        }
+////        reinterpret_cast<int (*)()>(delegate)();
+////        reinterpret_cast<void (*)(void*)>(delegate)(nullptr);
+//        pal::string_t args[2] = {_X("lol"), _X("kek")};
+//        reinterpret_cast<void (*)(pal::string_t*)>(delegate)(args);
+//    }
+//#endif // FEATURE_JETHOST
     auto hr = context.coreclr->execute_assembly(
         (int32_t)argv_local.size(),
         argv_local.data(),
@@ -413,6 +437,7 @@ int corehost_main_init(
 
 SHARED_API int HOSTPOLICY_CALLTYPE corehost_main(const int argc, const pal::char_t* argv[])
 {
+    trace::println(_X("corehost_main"));
     int rc = corehost_main_init(g_init, argc, argv, _X("corehost_main"));
     if (rc != StatusCode::Success)
         return rc;
@@ -672,6 +697,7 @@ namespace
 //
 SHARED_API int HOSTPOLICY_CALLTYPE corehost_initialize(const corehost_initialize_request_t *init_request, uint32_t options, /*out*/ corehost_context_contract *context_contract)
 {
+    trace::println(_X("corehost_initialize"));
     if (context_contract == nullptr)
         return StatusCode::InvalidArgFailure;
 
@@ -904,7 +930,6 @@ SHARED_API int HOSTPOLICY_CALLTYPE corehost_resolve_component_dependencies(
     // So only use the component as the "app" framework.
     fx_definition_vector_t component_fx_definitions;
     component_fx_definitions.push_back(std::unique_ptr<fx_definition_t>(app));
-
     // TODO Review: Since we're only passing the one component framework, the resolver will not consider
     // frameworks from the app for probing paths. So potential references to paths inside frameworks will not resolve.
 

@@ -10,6 +10,11 @@
 #include "utils.h"
 #include "bundle/info.h"
 #include <cassert>
+#if defined(FEATURE_JETHOST)
+#include <utility>
+#include "jethost_properties.h"
+#include "jethost_runtime_config.h"
+#endif
 
 // The semantics of applying the runtimeconfig.json values follows, in the following steps from
 // first to last, where last always wins. These steps are also annotated in the code here.
@@ -402,6 +407,21 @@ bool runtime_config_t::ensure_parsed()
 
     if (!bundle::info_t::config_t::probe(m_path) && !pal::file_exists(m_path))
     {
+#if defined(FEATURE_JETHOST)
+        if (jethost_properties::get_flag(JETHOST_EMULATE_RUNTIMECONFIG)) {
+            json_parser_t json;
+            pal::char_t *config = jethost_runtime_config::get_runtime_config();
+            size_t length = pal::strlen(config);
+            char *t = new char [length];
+            for (int i = 0; i < length; ++i)
+                t[i] = (char) config[i];
+            json.parse_raw_data(t, static_cast<int64_t>(length), _X(""));
+            bool result = parse_opts(json.document());
+            free(config);
+            free(t);
+            return result;
+        }
+#endif
         // Not existing is not an error.
         return true;
     }
