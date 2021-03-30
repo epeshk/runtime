@@ -347,6 +347,28 @@ bool deps_json_t::load_framework_dependent(const pal::string_t& deps_path, const
 
     reconcile_libraries_with_targets(deps_path, json, package_exists, get_relpaths);
 
+    trace::println(_X("m_deps_entries: %d"), m_deps_entries->size());
+    trace::println(_X("m_rid_assets: %d"), m_rid_assets.libs.size());
+    trace::println(_X("m_assets: %d"), m_assets.libs.size());
+
+    for (const auto& x : m_deps_entries) {
+        for (const auto& y : x) {
+            trace::println(_X("---- %s %s"), y.library_name.c_str(), y.library_path.c_str());
+        }
+    }
+
+    for (const auto& x : m_rid_assets.libs) {
+        trace::println(_X("RID ASSET: %s"), x.first.c_str());
+        for (const auto& y : x.second) {
+            trace::println(_X("===="));
+            for (const auto& z : y.rid_assets) {
+                trace::println(_X("-- %s"), z.first.c_str());
+                for (const auto & a : z.second)
+                    trace::println(_X("---- %s %s"), a.name.c_str(), a.relative_path.c_str());
+            }
+        }
+    }
+
     return true;
 }
 

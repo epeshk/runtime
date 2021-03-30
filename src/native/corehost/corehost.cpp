@@ -9,6 +9,9 @@
 #include "trace.h"
 #include "utils.h"
 #include "hostfxr_resolver.h"
+#if defined(FEATURE_JETHOST)
+#include "jethost_properties.h"
+#endif
 
 #if defined(FEATURE_APPHOST)
 #include "bundle_marker.h"
@@ -83,6 +86,9 @@ bool is_exe_enabled_for_execution(pal::string_t* app_dll)
 #define CURHOST_EXE
 #endif
 
+#if defined(FEATURE_JETHOST)
+#include "jethost_properties.h"
+#endif // FEATURE_JETHOST
 void need_newer_framework_error()
 {
     pal::string_t url = get_download_url();
@@ -140,6 +146,16 @@ int exe_start(const int argc, const pal::char_t* argv[])
 
     app_root.assign(get_directory(app_path));
 
+#elif defined(FEATURE_JETHOST)
+    pal::string_t own_name = strip_executable_ext(get_filename(host_path));
+
+    app_root.assign(host_path);
+    app_path.assign(get_directory(app_root));
+    append_path(&app_path, own_name.c_str());
+    app_path.append(_X(".dll"));
+
+    if (!jethost_properties::initialize(argc, argv))
+        return StatusCode::CoreHostIncompatibleConfig;
 #else
     pal::string_t own_name = strip_executable_ext(get_filename(host_path));
 
@@ -241,6 +257,7 @@ int exe_start(const int argc, const pal::char_t* argv[])
                 need_newer_framework_error();
             }
         }
+#if !defined(FEATURE_JETHOST)
 #if !defined(FEATURE_STATIC_HOST)
         else
         {
@@ -271,6 +288,7 @@ int exe_start(const int argc, const pal::char_t* argv[])
             }
         }
 #endif // defined(FEATURE_STATIC_HOST)
+#endif // defined(FEATURE_JETHOST)
     }
 
     return rc;
@@ -312,4 +330,22 @@ int main(const int argc, const pal::char_t* argv[])
     return exit_code;
 }
 
+#endif
+
+#if defined(FEATURE_JETHOST)
+#ifdef __cplusplus
+extern "C" {
+#endif
+__attribute__((__visibility__("default"))) int libmain(const int argc, const pal::char_t *argv[], const char config[]) {
+jethost_properties::set_config(config);
+#if defined(_WIN32)
+    return wmain(argc, argv);
+#else
+    return main(argc, argv);
+#endif
+}
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 #endif

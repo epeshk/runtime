@@ -240,7 +240,6 @@ bool hostpolicy_resolver::try_get_dir(
 
     // Obtain deps file for the given configuration.
     pal::string_t resolved_deps = get_deps_file(is_framework_dependent, app_candidate, specified_deps_file, fx_definitions);
-
     // Resolve hostpolicy version out of the deps file.
     pal::string_t version = resolve_hostpolicy_version_from_deps(resolved_deps);
     if (trace::is_enabled() && version.empty() && pal::file_exists(resolved_deps))

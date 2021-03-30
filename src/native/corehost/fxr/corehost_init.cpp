@@ -97,7 +97,6 @@ const host_interface_t& corehost_init_t::get_host_init_data()
         hi.fx_dir = _X("");
         hi.fx_ver = _X("");
     }
-
     hi.deps_file = m_deps_file.c_str();
     hi.additional_deps_serialized = m_additional_deps_serialized.c_str();
     hi.is_framework_dependent = m_is_framework_dependent;
