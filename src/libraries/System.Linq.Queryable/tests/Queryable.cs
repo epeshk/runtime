@@ -96,6 +96,8 @@ namespace System.Linq.Tests
                      nameof(Enumerable.Prepend),
                      nameof(Enumerable.ToHashSet),
                      nameof(Enumerable.TryGetNonEnumeratedCount),
+                     nameof(Enumerable.CountBy),
+                     nameof(Enumerable.LongCountBy),
                      "Fold",
                      "LeftJoin",
                  }

@@ -47,6 +47,10 @@ namespace System.Linq
         public static bool Contains<TSource>(this System.Collections.Generic.IEnumerable<TSource> source, TSource value, System.Collections.Generic.IEqualityComparer<TSource>? comparer) { throw null; }
         public static int Count<TSource>(this System.Collections.Generic.IEnumerable<TSource> source) { throw null; }
         public static int Count<TSource>(this System.Collections.Generic.IEnumerable<TSource> source, System.Func<TSource, bool> predicate) { throw null; }
+        public static System.Linq.ICounts<TKey, int> CountBy<TSource, TKey>(this System.Collections.Generic.IEnumerable<TSource> source, System.Func<TSource, TKey> keySelector) { throw null; }
+        public static System.Linq.ICounts<TKey, int> CountBy<TSource, TKey>(this System.Collections.Generic.IEnumerable<TSource> source, System.Func<TSource, TKey> keySelector, System.Collections.Generic.IEqualityComparer<TKey>? comparer) { throw null; }
+        public static System.Linq.ICounts<TKey, long> LongCountBy<TSource, TKey>(this System.Collections.Generic.IEnumerable<TSource> source, System.Func<TSource, TKey> keySelector) { throw null; }
+        public static System.Linq.ICounts<TKey, long> LongCountBy<TSource, TKey>(this System.Collections.Generic.IEnumerable<TSource> source, System.Func<TSource, TKey> keySelector, System.Collections.Generic.IEqualityComparer<TKey>? comparer) { throw null; }
         public static System.Collections.Generic.IEnumerable<TSource?> DefaultIfEmpty<TSource>(this System.Collections.Generic.IEnumerable<TSource> source) { throw null; }
         public static System.Collections.Generic.IEnumerable<TSource> DefaultIfEmpty<TSource>(this System.Collections.Generic.IEnumerable<TSource> source, TSource defaultValue) { throw null; }
         public static System.Collections.Generic.IEnumerable<TSource> DistinctBy<TSource, TKey>(this System.Collections.Generic.IEnumerable<TSource> source, System.Func<TSource, TKey> keySelector) { throw null; }
@@ -248,5 +252,13 @@ namespace System.Linq
         public bool Contains(TKey key) { throw null; }
         public System.Collections.Generic.IEnumerator<System.Linq.IGrouping<TKey, TElement>> GetEnumerator() { throw null; }
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() { throw null; }
+    }
+    public partial interface ICounts<TKey, TCount> : System.Collections.Generic.IEnumerable<(TKey Key, TCount Count)>
+    {
+        int KeyCount { get; }
+
+        TCount this[TKey key] { get; }
+
+        bool Contains(TKey key);
     }
 }
